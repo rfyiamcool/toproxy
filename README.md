@@ -2,6 +2,8 @@
 
 用tornado实现的高性能代理服务器，涵盖了基本的method , 性能方面经过我的测试，他每秒平均在300个访问,如果在tornado加入threadpool逻辑，并发估计会破1k 。
 
+对于https的支持会有些问题，我后期会增强tornado httpclient对于ssl的支持，另外对于高性能方面会加入gevent。
+
 [toproxy 更多介绍](http://xiaorui.cc  "xiaorui.cc")
 
 ### 原理
@@ -38,6 +40,7 @@
 
 
 ### test
+
     curl -vvv -x xiaorui.cc:8888 http://www.google.com
 
     ab -X xiaorui.cc:8888 -c 200 -n 1000 http://www.hao123.com/ 
@@ -101,6 +104,7 @@
     ```
 
 ### todo
+
 1.  提高toproxy的性能
 2.  加入重试机制
 3.  加入异步回调通知模式
