@@ -15,7 +15,7 @@ import tornado.httpclient
 import requests
 import gevent
 
-logger = logging.getLogger('tornado_proxy')
+logger = logging.getLogger()
 
 __all__ = ['ProxyHandler', 'run_proxy']
 
@@ -30,6 +30,12 @@ def parse_proxy(proxy):
     proxy_parsed = urlparse(proxy, scheme='http')
     return proxy_parsed.hostname, proxy_parsed.port
 
+def match_white_iplist(clientip):
+    if clientip in white_iplist:
+        return True
+    if not white_iplist:
+        return True
+    return False
 
 def fetch_request(url, callback, **kwargs):
     proxy = get_proxy(url)
@@ -51,10 +57,10 @@ class ProxyHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     def get(self):
-        logger.debug('Handle %s request to %s', self.request.method,
-                     self.request.uri)
+        logger.debug('Handle %s request to %s', self.request.method,self.request.uri)
 
         def handle_response(response):
+            #self.request.headers.get("X-Real-Ip",'')
             if (response.error and not
                     isinstance(response.error, tornado.httpclient.HTTPError)):
                 self.set_status(500)
@@ -73,6 +79,13 @@ class ProxyHandler(tornado.web.RequestHandler):
                     self.write(response.body)
             self.finish()
 
+        client_ip = self.request.remote_ip
+        if not match_white_iplist(client_ip):
+            logger.debug('deny %s', client_ip)
+            self.set_status(403)
+            self.write('')
+            self.finish()
+            return 
         body = self.request.body
         if not body:
             body = None
@@ -166,8 +179,12 @@ def run_proxy(port, start_ioloop=True):
 
 if __name__ == '__main__':
     port = 8888
+    white_iplist = []
     if len(sys.argv) > 1:
         port = int(sys.argv[1])
+
+    if len(sys.argv) > 2:
+        white_iplist = sys.argv[2].split(',')
 
     print ("Starting HTTP proxy on port %d" % port)
     run_proxy(port)
