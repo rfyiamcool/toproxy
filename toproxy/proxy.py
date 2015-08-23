@@ -50,7 +50,6 @@ class ProxyHandler(tornado.web.RequestHandler):
     SUPPORTED_METHODS = ['GET', 'POST', 'CONNECT']
 
     @tornado.web.asynchronous
-    @tornado.gen.coroutine
     def get(self):
         logger.debug('Handle %s request to %s', self.request.method,
                      self.request.uri)
