@@ -49,7 +49,7 @@ def fetch_request(url, callback, **kwargs):
 
     req = tornado.httpclient.HTTPRequest(url, **kwargs)
     client = tornado.httpclient.AsyncHTTPClient()
-    client.fetch(req, callback)
+    client.fetch(req, callback,follow_redirects=True,max_redirects=3)
 
 
 class ProxyHandler(tornado.web.RequestHandler):
