@@ -75,6 +75,7 @@ class ProxyHandler(tornado.web.RequestHandler):
                 if v:
                     for i in v:
                         self.add_header('Set-Cookie', i)
+                self.add_header('VIA', 'Toproxy')
                 if response.body:
                     self.write(response.body)
             self.finish()
@@ -152,6 +153,7 @@ class ProxyHandler(tornado.web.RequestHandler):
             self.finish()
 
         def start_proxy_tunnel():
+            #upstream.write('Server: Toproxy\r\n')
             upstream.write('CONNECT %s HTTP/1.1\r\n' % self.request.uri)
             upstream.write('Host: %s\r\n' % self.request.uri)
             upstream.write('Proxy-Connection: Keep-Alive\r\n\r\n')
