@@ -6,8 +6,8 @@ import os.path
 
 setup(
     name='toproxy',
-    version='0.8',
-    description='tornado asynchronous HTTP proxy',
+    version='1.4',
+    description='Simple Tornado Async HTTP Proxy',
     url='http://xiaorui.cc',
     author='ruifengyun',
     author_email='rfyiamcool@163.com',

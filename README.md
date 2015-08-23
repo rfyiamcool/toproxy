@@ -16,6 +16,8 @@ New Future
 
 2. 当访问的地址连接失败的时候，会做重试机制
 
+3. support 301 redirect
+
 更多的httpclient文档，[httpclient 更多文档](http://tornado.readthedocs.org/en/latest/httpclient.html  "tornado httpclient") 
 
 ### 安装 
@@ -113,7 +115,6 @@ New Future
 ### todo
 
 1.  提高toproxy的性能
-2.  加入重试机制
-3.  加入异步回调通知模式
-4.  批量传送
+2.  加入异步回调通知模式
+3.  批量传送
 
