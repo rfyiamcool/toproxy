@@ -10,6 +10,9 @@
 你通过http client附加proxy地址访问页面，我通常会解析你的访问，然后我自己再去访问你刚才提交的页面，然后返回你结果。
 当然在协议上来说，这虽然不是最高性能的方法，但是最简单有效的方法....  如果是底层的socket来写，我首先需要解析你的各种各样的header请求，然后还要考虑多任务的模块，或 prefork 或 异步模式， 这都是开发的成本。    我这里是用tornado这异步框架，本身解决了各个流程的堵塞问题，然又用异步的 httpclient,避免了我请求url时的堵塞。 
 
+New Future
+1. 加入了白名单功能
+
 更多的httpclient文档，[httpclient 更多文档](http://tornado.readthedocs.org/en/latest/httpclient.html  "tornado httpclient") 
 
 ### 安装 
@@ -22,10 +25,11 @@
     python setup.py install
 
 ### 直接使用
-
+    第一个参数是端口，第二个参数是白名单ip地址。 
     方法1:
     python  -m toproxy/proxy 8888
-    Starting HTTP proxy on port 8888
+    python  -m toproxy/proxy 8888 8.8.8.8,114.114.114.114
+    ::::Starting HTTP proxy on port 8888
 
     方法2:
     python toproxy 8888
