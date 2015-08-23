@@ -11,7 +11,10 @@
 当然在协议上来说，这虽然不是最高性能的方法，但是最简单有效的方法....  如果是底层的socket来写，我首先需要解析你的各种各样的header请求，然后还要考虑多任务的模块，或 prefork 或 异步模式， 这都是开发的成本。    我这里是用tornado这异步框架，本身解决了各个流程的堵塞问题，然又用异步的 httpclient,避免了我请求url时的堵塞。 
 
 New Future
+
 1. 加入了白名单功能
+
+2. 当访问的地址连接失败的时候，会做重试机制
 
 更多的httpclient文档，[httpclient 更多文档](http://tornado.readthedocs.org/en/latest/httpclient.html  "tornado httpclient") 
 
