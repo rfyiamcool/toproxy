@@ -89,19 +89,25 @@ class ProxyHandler(tornado.web.RequestHandler):
         body = self.request.body
         if not body:
             body = None
-        try:
-            fetch_request(
-                self.request.uri, handle_response,
-                method=self.request.method, body=body,
-                headers=self.request.headers, follow_redirects=False,
-                allow_nonstandard_methods=True)
-        except tornado.httpclient.HTTPError as e:
-            if hasattr(e, 'response') and e.response:
-                handle_response(e.response)
-            else:
-                self.set_status(500)
-                self.write('Internal server error:\n' + str(e))
-                self.finish()
+        c = 0
+        retry_num = 2
+        for i in range(retry_num):
+            c += 1
+            try:
+                fetch_request(
+                    self.request.uri, handle_response,
+                    method=self.request.method, body=body,
+                    headers=self.request.headers, follow_redirects=False,
+                    allow_nonstandard_methods=True)
+                break
+            except tornado.httpclient.HTTPError as e:
+                code = e.response
+         if hasattr(e, 'response') and e.response:
+             handle_response(e.response)
+         else:
+             self.set_status(500)
+             self.write('Internal server error:\n' + str(e))
+             self.finish()
 
     @tornado.web.asynchronous
     def post(self):
