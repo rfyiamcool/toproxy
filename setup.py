@@ -6,7 +6,7 @@ import os.path
 
 setup(
     name='toproxy',
-    version='1.4',
+    version='2.0',
     description='Simple Tornado Async HTTP Proxy',
     url='http://xiaorui.cc',
     author='ruifengyun',
