@@ -12,44 +12,8 @@ import tornado.ioloop
 import tornado.iostream
 import tornado.web
 import tornado.httpclient
-import requests
-import gevent
 
 logger = logging.getLogger()
-
-__all__ = ['ProxyHandler', 'run_proxy']
-
-
-def get_proxy(url):
-    url_parsed = urlparse(url, scheme='http')
-    proxy_key = '%s_proxy' % url_parsed.scheme
-    return os.environ.get(proxy_key)
-
-
-def parse_proxy(proxy):
-    proxy_parsed = urlparse(proxy, scheme='http')
-    return proxy_parsed.hostname, proxy_parsed.port
-
-def match_white_iplist(clientip):
-    if clientip in white_iplist:
-        return True
-    if not white_iplist:
-        return True
-    return False
-
-def fetch_request(url, callback, **kwargs):
-    proxy = get_proxy(url)
-    if proxy:
-        logger.debug('Forward request via upstream proxy %s', proxy)
-        tornado.httpclient.AsyncHTTPClient.configure(
-            'tornado.curl_httpclient.CurlAsyncHTTPClient')
-        host, port = parse_proxy(proxy)
-        kwargs['proxy_host'] = host
-        kwargs['proxy_port'] = port
-
-    req = tornado.httpclient.HTTPRequest(url, **kwargs)
-    client = tornado.httpclient.AsyncHTTPClient()
-    client.fetch(req, callback,follow_redirects=True,max_redirects=3)
 
 
 class ProxyHandler(tornado.web.RequestHandler):
@@ -79,6 +43,13 @@ class ProxyHandler(tornado.web.RequestHandler):
                 if response.body:
                     self.write(response.body)
             self.finish()
+
+        auth_header = self.request.headers.get('Authorization', '')
+        if not base_auth_valid(auth_header):
+            self.set_status(403)
+            self.write('')
+            self.finish()
+            return
 
         client_ip = self.request.remote_ip
         if not match_white_iplist(client_ip):
@@ -169,6 +140,50 @@ class ProxyHandler(tornado.web.RequestHandler):
         else:
             upstream.connect((host, int(port)), start_tunnel)
 
+def get_proxy(url):
+    url_parsed = urlparse(url, scheme='http')
+    proxy_key = '%s_proxy' % url_parsed.scheme
+    return os.environ.get(proxy_key)
+
+def base_auth_valid(auth_header):
+    from tornado.escape import utf8
+    from hashlib import md5
+    # Basic Zm9vOmJhcg==
+    auth_mode, auth_base64 = auth_header.split(' ', 1)
+    assert auth_mode == 'Basic'
+    # 'Zm9vOmJhcg==' == base64("foo:bar")
+    auth_username, auth_password = auth_base64.decode('base64').split(':', 1)
+    if auth_username == base_auth_user and auth_password == base_auth_passwd:
+        return True
+    else:
+        return False
+
+def parse_proxy(proxy):
+    proxy_parsed = urlparse(proxy, scheme='http')
+    return proxy_parsed.hostname, proxy_parsed.port
+
+def match_white_iplist(clientip):
+    if clientip in white_iplist:
+        return True
+    if not white_iplist:
+        return True
+    return False
+
+def fetch_request(url, callback, **kwargs):
+    proxy = get_proxy(url)
+    if proxy:
+        logger.debug('Forward request via upstream proxy %s', proxy)
+        tornado.httpclient.AsyncHTTPClient.configure(
+            'tornado.curl_httpclient.CurlAsyncHTTPClient')
+        host, port = parse_proxy(proxy)
+        kwargs['proxy_host'] = host
+        kwargs['proxy_port'] = port
+
+    req = tornado.httpclient.HTTPRequest(url, **kwargs)
+    client = tornado.httpclient.AsyncHTTPClient()
+    client.fetch(req, callback,follow_redirects=True,max_redirects=3)
+
+
 
 def run_proxy(port, start_ioloop=True):
     app = tornado.web.Application([
@@ -180,13 +195,16 @@ def run_proxy(port, start_ioloop=True):
         ioloop.start()
 
 if __name__ == '__main__':
-    port = 8888
     white_iplist = []
+    port = 8888
     if len(sys.argv) > 1:
         port = int(sys.argv[1])
 
     if len(sys.argv) > 2:
         white_iplist = sys.argv[2].split(',')
+
+    if len(sys.argv) > 3:
+        base_auth_user,base_auth_passwd = sys.argv[3].split(',')
 
     print ("Starting HTTP proxy on port %d" % port)
     run_proxy(port)
