@@ -18,6 +18,8 @@ New Future
 
 3. support 301 redirect
 
+4. 加入了基本认证
+
 更多的httpclient文档，[httpclient 更多文档](http://tornado.readthedocs.org/en/latest/httpclient.html  "tornado httpclient") 
 
 ### 安装 
@@ -30,14 +32,29 @@ New Future
     python setup.py install
 
 ### 直接使用
+    ```
+    python toproxy/proxy.py -h
+
+    usage: proxy.py [-h] [-p PORT] [-w WHITE] [-u USER]
+    
+    python -m toproxy/proxy -p 8888 -w 127.0.0.1,8.8.8.8 -u xiaorui:fengyun
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      -p PORT, --port PORT  tonado proxy listen port
+      -w WHITE, --white WHITE
+                            white ip list ---> 127.0.0.1,215.8.1.3
+      -u USER, --user USER  Base Auth , xiaoming:123123
+    ```
+
     第一个参数是端口，第二个参数是白名单ip地址。 
     方法1:
-    python  -m toproxy/proxy 8888
-    python  -m toproxy/proxy 8888 8.8.8.8,114.114.114.114
+    python  -m toproxy/proxy -p 8888 -w 127.0.0.1 -u xiaorui:123
+    python  -m toproxy/proxy
     ::::Starting HTTP proxy on port 8888
 
     方法2:
-    python toproxy 8888
+    python toproxy 
 
 
 ### 模块的调用
