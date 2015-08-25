@@ -44,12 +44,13 @@ class ProxyHandler(tornado.web.RequestHandler):
                     self.write(response.body)
             self.finish()
 
-        auth_header = self.request.headers.get('Authorization', '')
-        if not base_auth_valid(auth_header):
-            self.set_status(403)
-            self.write('')
-            self.finish()
-            return
+        if base_auth_user:
+            auth_header = self.request.headers.get('Authorization', '')
+            if not base_auth_valid(auth_header):
+                self.set_status(403)
+                self.write('')
+                self.finish()
+                return
 
         client_ip = self.request.remote_ip
         if not match_white_iplist(client_ip):
@@ -196,15 +197,21 @@ def run_proxy(port, start_ioloop=True):
 
 if __name__ == '__main__':
     white_iplist = []
-    port = 8888
-    if len(sys.argv) > 1:
-        port = int(sys.argv[1])
-
-    if len(sys.argv) > 2:
-        white_iplist = sys.argv[2].split(',')
-
-    if len(sys.argv) > 3:
-        base_auth_user,base_auth_passwd = sys.argv[3].split(',')
-
+    import argparse
+    parser = argparse.ArgumentParser(description='''python -m toproxy/proxy  -p 8888 -w 127.0.0.1,8.8.8.8 -u xiaorui:fengyun''')
+    
+    parser.add_argument('-p','--port', help='tonado proxy listen port', action='store',default=8888)
+    parser.add_argument('-w','--white', help='white ip list ---> 127.0.0.1,215.8.1.3', action='store',default=[])
+    parser.add_argument('-u','--user',help='Base Auth , xiaoming:123123',action='store',default=None)
+    args = parser.parse_args()
+    if not args.port:
+        parser.print_help()
+    port = int(args.port)
+    white_iplist = args.white
+    if args.user:
+        base_auth_user,base_auth_passwd = args.user.split(':')
+    else:
+        base_auth_user,base_auth_passwd = None,None
+        
     print ("Starting HTTP proxy on port %d" % port)
     run_proxy(port)
