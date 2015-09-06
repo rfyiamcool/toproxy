@@ -9,7 +9,7 @@ def read(fname):
 
 setup(
     name='toproxy',
-    version='2.0',
+    version='3.0',
     description='Simple Tornado Async HTTP Proxy',
     long_description=open('README.md').read(),
     keywords = ["tornado proxy","fengyun"],
