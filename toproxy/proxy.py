@@ -3,6 +3,7 @@
 
 import logging
 import os
+import re
 import sys
 import socket
 from urlparse import urlparse
@@ -48,9 +49,16 @@ class ProxyHandler(tornado.web.RequestHandler):
             auth_header = self.request.headers.get('Authorization', '')
             if not base_auth_valid(auth_header):
                 self.set_status(403)
-                self.write('')
+                self.write('Auth Faild')
                 self.finish()
                 return
+
+        user_agent = self.request.headers.get('User-Agent', '')
+        if shield_attack(user_agent):
+            self.set_status(500)
+            self.write('nima')
+            self.finish()
+            return
 
         client_ip = self.request.remote_ip
         if not match_white_iplist(client_ip):
@@ -167,6 +175,11 @@ def match_white_iplist(clientip):
     if clientip in white_iplist:
         return True
     if not white_iplist:
+        return True
+    return False
+
+def shield_attack(header):
+    if re.search(header,'ApacheBench'):
         return True
     return False
 
