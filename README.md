@@ -20,6 +20,8 @@ New Future
 
 4. 加入了基本认证
 
+5. 简单防御AB压测
+
 更多的httpclient文档，[httpclient 更多文档](http://tornado.readthedocs.org/en/latest/httpclient.html  "tornado httpclient") 
 
 ### 安装 
