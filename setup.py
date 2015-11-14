@@ -9,7 +9,7 @@ def read(fname):
 
 setup(
     name='toproxy',
-    version='3.1',
+    version='3.2',
     description='Simple Tornado Async HTTP Proxy',
     long_description=open('README.md').read(),
     keywords = ["tornado proxy","fengyun"],
@@ -20,7 +20,7 @@ setup(
     packages=['toproxy'],
     license = "MIT",
     classifiers = [
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2.7',
