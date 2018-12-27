@@ -197,7 +197,7 @@ def fetch_request(url, callback, **kwargs):
         kwargs['proxy_port'] = port
         kwargs['proxy_port'] = port
     kwargs['follow_redirects'] = True
-    kwargs['max_redirect'] = 3
+    kwargs['max_redirects'] = 3
     req = tornado.httpclient.HTTPRequest(url, **kwargs)
     client = tornado.httpclient.AsyncHTTPClient()
     client.fetch(req, callback)
